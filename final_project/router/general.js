@@ -61,7 +61,11 @@ public_users.get('/author/:author', async function (req, res) {
       const filtered = [];
       for (let key in books) {
         if (books[key].author === author) {
-          filtered.push(books[key]);
+          filtered.push({
+            isbn: key,
+            title: books[key].title,
+            reviews: books[key].reviews
+          });
         }
       }
       if (filtered.length > 0) {
@@ -70,7 +74,7 @@ public_users.get('/author/:author', async function (req, res) {
         reject(new Error("No books found by this author"));
       }
     });
-    return res.status(200).json(booksByAuthor);
+    return res.status(200).json({booksbyauthor: booksByAuthor});
   } catch (error) {
     return res.status(404).json({message: error.message});
   }
@@ -81,16 +85,24 @@ public_users.get('/title/:title', async function (req, res) {
   try {
     const title = req.params.title;
     // Simulate async operation using Promise
-    const book = await new Promise((resolve, reject) => {
+    const booksByTitle = await new Promise((resolve, reject) => {
+      const filtered = [];
       for (let key in books) {
         if (books[key].title === title) {
-          resolve(books[key]);
-          return;
+          filtered.push({
+            isbn: key,
+            title: books[key].title,
+            reviews: books[key].reviews
+          });
         }
       }
-      reject(new Error("Book not found"));
+      if (filtered.length > 0) {
+        resolve(filtered);
+      } else {
+        reject(new Error("Book not found"));
+      }
     });
-    return res.status(200).json(book);
+    return res.status(200).json({booksbytitle: booksByTitle});
   } catch (error) {
     return res.status(404).json({message: error.message});
   }
